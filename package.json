@@ -1,0 +1,25 @@
+{
+  "name": "devon",
+  "version": "1.0.0",
+  "description": "Console bot to assist with common development tasks.",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node ./lib/index.js",
+    "test": "tsc && ./tests/mocha"
+  },
+  "author": "stevenic",
+  "license": "MIT",
+  "dependencies": {
+    "@types/command-line-args": "^5.0.0",
+    "@types/node": "^10.12.12",
+    "@types/string-argv": "^0.1.0",
+    "@types/uuid": "^3.4.4",
+    "botbuilder": "^4.1.7",
+    "botbuilder-dialogs": "^4.1.7",
+    "chalk": "^2.4.1",
+    "command-line-args": "^5.0.2",
+    "node-uuid": "^1.4.8",
+    "string-argv": "^0.1.1",
+    "uuid": "^3.3.2"
+  }
+}
