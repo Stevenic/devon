@@ -8,7 +8,7 @@ export class ExistingPathPrompt extends TextPrompt {
             let value = prompt.recognized.value;
             if (value) {
                 if (!path.isAbsolute(value)) {
-                    value = path.resolve()
+                    value = path.resolve(value);
                 }
                 if (fs.existsSync(value)) {
                     prompt.recognized.value = value;

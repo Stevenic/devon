@@ -1,15 +1,26 @@
-import { ActivityTypes } from 'botbuilder';
+import { ActivityTypes, ConversationState, MemoryStorage, AutoSaveStateMiddleware } from 'botbuilder';
 import { ConsoleAdapter } from './consoleAdapter';
+import { RootSkillSet, FileSystemSkill } from './skills';
 import chalk from 'chalk';
+import { DialogTurnStatus } from 'botbuilder-dialogs';
+
+const adapter = new ConsoleAdapter();
+
+const convoState = new ConversationState(new MemoryStorage());
+adapter.use(new AutoSaveStateMiddleware(convoState));
+
+const skills = new RootSkillSet(convoState.createProperty('skillState'));
+skills.addSkill(new FileSystemSkill('files'));
 
 const initialMessage = process.argv.length > 2 ? process.argv.slice(2).join(' ') : undefined;
-const adapter = new ConsoleAdapter().listen(async (context) => {
+adapter.listen(async (context) => {
     if (context.activity.text === 'quit') {
         process.exit();
     } else {
-        await context.sendActivity({ type: ActivityTypes.Typing });
-        await context.sendActivity({ type: 'delay', value: 5000 });
-        await context.sendActivity(chalk.blue(`you said: ` + context.activity.text));
+        const result = await skills.run(context);
+        if (result.status !== DialogTurnStatus.waiting) {
+            process.exit();
+        }
     }
 }, initialMessage);
 

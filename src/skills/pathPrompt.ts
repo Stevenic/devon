@@ -7,7 +7,7 @@ export class PathPrompt extends TextPrompt {
             let value = prompt.recognized.value;
             if (value) {
                 if (!path.isAbsolute(value)) {
-                    value = path.resolve()
+                    value = path.resolve(value);
                 }
                 prompt.recognized.value = value;
                 return true;
