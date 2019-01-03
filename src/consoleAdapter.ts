@@ -12,7 +12,7 @@ export class ConsoleAdapter extends BotAdapter {
     private rl: readline.Interface;
     private hTyping: NodeJS.Timeout;
 
-    public listen(logic: (revocableContext: TurnContext) => Promise<void>): Promise<void> {
+    public listen(logic: (revocableContext: TurnContext) => Promise<void>, initialMsg?: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.rl = readline.createInterface({
                 input: process.stdin,
@@ -21,7 +21,8 @@ export class ConsoleAdapter extends BotAdapter {
 
             let err: Error;
             const conversationId = uuid.v1(); 
-            this.rl.on('line', (input) => {
+            const that = this;
+            function receiveInput(input: string): void {
                 const activity: Partial<Activity> = {
                     type: ActivityTypes.Message,
                     id: uuid.v1(),
@@ -31,15 +32,17 @@ export class ConsoleAdapter extends BotAdapter {
                     conversation: { id: conversationId, isGroup: false } as ConversationAccount,
                     text: input
                 };
-    
-                this.rl.pause();
-                this.receiveActivity(activity, logic)
-                    .then(() => this.rl.resume())
+        
+                that.rl.pause();
+                that.receiveActivity(activity, logic)
+                    .then(() => that.rl.resume())
                     .catch((e) => {
                         err = e; 
-                        this.rl.close();
+                        that.rl.close();
                     });
-            });
+            }
+
+            this.rl.on('line', receiveInput);
     
             this.rl.on('close', () => {
                 this.endTyping();
@@ -50,6 +53,10 @@ export class ConsoleAdapter extends BotAdapter {
                     resolve();
                 }
             });
+
+            if (typeof initialMsg === 'string') {
+                receiveInput(initialMsg);
+            }
         });
     }
 
