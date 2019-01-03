@@ -81,11 +81,17 @@ export interface SkillCommandOption {
      * options `name` will be generated. 
      */
     retryPrompt?: string|Partial<Activity>;
+
+    /**
+     * Name of the entity this option should be populated from.
+     */
+    entityName?: string;
 }
 
 export class SkillCommand extends CustomSkillCommand {
     private readonly sequence = new WaterfallDialog('sequence');
     private readonly options: commandLineArgs.OptionDefinition[] = [];
+    private readonly entityMappers: { [name: string]: (entity: any, options: object) => any; } = {};
     
     public commandNames: string[];
 
@@ -125,7 +131,18 @@ export class SkillCommand extends CustomSkillCommand {
                     if (!opt.choices || opt.choices.length == 0) { throw new Error(`ConfiguredSkillCommand.addOption(): must specify a list of choices for 'choice' options.`) }
                     this.addOptionStep(opt, String);
                     break;
-                }
+            }
+
+            // Add entity mapper
+            if (opt.entityName) {
+                this.entityMappers[opt.entityName] = (entity, options) => {
+                    if (opt.multiple || opt.lazyMultiple) {
+                        options[opt.name] = Array.isArray(entity) ? entity : [entity];
+                    } else {
+                        options[opt.name] = Array.isArray(entity) ? entity[0] : entity;
+                    }
+                }    
+            }
         });
         return this;
     }
@@ -174,7 +191,13 @@ export class SkillCommand extends CustomSkillCommand {
 
     protected async onMapEntitiesToOptions(context: TurnContext, recognized: RecognizerResult): Promise<object> {
         const options = {};
-        
+        if (recognized.entities) {
+            for (const name in recognized.entities) {
+                if (this.entityMappers.hasOwnProperty(name)) {
+                    this.entityMappers[name](recognized.entities[name], options);
+                } 
+            }
+        }
         return options;
     }
 
@@ -187,6 +210,8 @@ export class SkillCommand extends CustomSkillCommand {
 
     private addOptionStep(option: SkillCommandOption, type: (input: string) => any): void {
         this.options.push(Object.assign({}, option, { type: type }) as commandLineArgs.OptionDefinition);
+        const isPath = option.type === SkillCommandOptionType.path || option.type === SkillCommandOptionType.existing_path;
+        const isMulti = option.multiple || option.lazyMultiple;
         if (option.required) {
             // Add sequence steps to ensure a required option is set.
             this.sequence
@@ -203,7 +228,7 @@ export class SkillCommand extends CustomSkillCommand {
                 .addStep(async (step) => {
                     // Save value to options or fall through.
                     if (step.result !== undefined) {
-                        if (option.multiple || option.lazyMultiple) {
+                        if (isMulti) {
                             step.options[option.name] = [step.result];
                         } else {
                             step.options[option.name] = step.result;
@@ -212,9 +237,9 @@ export class SkillCommand extends CustomSkillCommand {
                     return await step.next();
                 });
         }
-        
+
         // Add additional step to ensure that path properties are properly resolved
-        if (option.type === SkillCommandOptionType.path || option.type === SkillCommandOptionType.existing_path) {
+        if (isPath) {
             this.sequence.addStep(async (step) => {
                 const value = step.options[option.name];
                 if (Array.isArray(value)) {
