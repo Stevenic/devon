@@ -4,6 +4,7 @@ import { CustomSkillCommand, RecognizedCommand } from './customSkillCommand';
 import { NONE_INTENT, topIntent } from './recognizer';
 import { ExistingPathPrompt } from './existingPathPrompt';
 import { PathPrompt } from './pathPrompt';
+import * as path from 'path';
 import commandLineArgs = require('command-line-args');
 import parseArgsStringToArgv = require('string-argv');
 
@@ -210,6 +211,19 @@ export class SkillCommand extends CustomSkillCommand {
                     }
                     return await step.next();
                 });
+        }
+        
+        // Add additional step to ensure that path properties are properly resolved
+        if (option.type === SkillCommandOptionType.path || option.type === SkillCommandOptionType.existing_path) {
+            this.sequence.addStep(async (step) => {
+                const value = step.options[option.name];
+                if (Array.isArray(value)) {
+                    step.options[option.name] = value.map((p) => path.isAbsolute(p) ? p : path.resolve(p));
+                } else if (typeof value === 'string') {
+                    step.options[option.name] = path.isAbsolute(value) ? value : path.resolve(value);
+                }
+                return await step.next();
+            });
         }
     }
 
