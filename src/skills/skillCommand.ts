@@ -5,6 +5,7 @@ import { NONE_INTENT, topIntent } from './recognizer';
 import { ExistingPathPrompt } from './existingPathPrompt';
 import { PathPrompt } from './pathPrompt';
 import commandLineArgs = require('command-line-args');
+import parseArgsStringToArgv = require('string-argv');
 
 export enum SkillCommandOptionType {
     string = 'string',
@@ -144,12 +145,20 @@ export class SkillCommand extends CustomSkillCommand {
                 dialogOptions: options
             };
         } else if (top.name === NONE_INTENT) {
-            // Attempt to recognize a command in utterance
-            let argv = CustomSkillCommand.utteranceToArgv(context);
-            const mainOptions = commandLineArgs([{ name: 'command', defaultOption: true }], { argv: argv, stopAtFirstUnknown: true });
-            argv = mainOptions._unknown || [];
             for (let i = 0; i < this.commandNames.length; i++) {
-                if ((mainOptions.command as string).toLowerCase() === this.commandNames[i].toLowerCase()) {
+                // Attempt to recognize the command in utterance
+                let recognized = true;
+                let argv = parseArgsStringToArgv(context.activity.text || '');
+                const cmd = this.commandNames[i].split(' ');
+                for (let j = 0; j < cmd.length; j++) {
+                    const o = commandLineArgs([{ name: 'command', defaultOption: true }], { argv: argv, stopAtFirstUnknown: true });
+                    argv = o._unknown || [];
+                    if ((o.command as string).toLowerCase() !== cmd[j].toLowerCase()) {
+                        recognized = false;
+                        break;
+                    }
+                }
+                if (recognized) {
                     const options = await this.onMapArgvToOptions(context, argv);
                     return {
                         score: 1.0,
