@@ -1,16 +1,17 @@
 import { TurnContext, RecognizerResult } from 'botbuilder';
 import { DialogContext, DialogTurnResult } from 'botbuilder-dialogs';
-import { SkillCommand, RecognizedCommand, Recognizer } from './skillCommand';
+import { CustomSkillCommand, RecognizedCommand } from './customSkillCommand';
+import { Recognizer } from './recognizer';
 
-export class Skill extends SkillCommand {
-    protected readonly commands: SkillCommand[] = [];
+export class Skill extends CustomSkillCommand {
+    protected readonly commands: CustomSkillCommand[] = [];
 
     constructor(dialogId: string, recognizer?: Recognizer) {
         super(dialogId);
         this.recognizer = recognizer;
     }
 
-    public addCommand(...commands: SkillCommand[]): this {
+    public addCommand(...commands: CustomSkillCommand[]): this {
         commands.forEach((cmd) => {
             // Assign the skills recognizer to the command if not already set
             if (!cmd.recognizer) {
