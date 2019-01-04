@@ -24,7 +24,7 @@ export class LoginSkillCommand extends SkillCommand<LoginOption> {
                 defaultOption: true,
                 required: true,
                 entityName: 'login',
-                prompt: 'Login will launch a browser window. Proceed?'
+                prompt: 'This will launch a browser window. Proceed?'
             },
             {
                 type: SkillCommandOptionType.string,
