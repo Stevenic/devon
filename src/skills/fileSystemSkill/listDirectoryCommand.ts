@@ -15,10 +15,11 @@ export class ListDirectoryCommand extends SkillCommand {
             defaultOption: true,
             entityName: 'Path'
         });
-        this.addProcessingStep(
-            async (step) => await this.beginCommand(step, `call dir ${step.options['path'] ? step.options['path'] : ''}`),
-            async (step) => await step.endDialog()
-        );
+        this.addProcessingStep(async (step) => {
+            const path = step.options['path'];
+            await this.call(`dir ${path ? path : ''}`);
+            return await step.endDialog();
+        });
     }
 }
 

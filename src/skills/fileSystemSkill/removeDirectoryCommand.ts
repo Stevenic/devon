@@ -17,10 +17,10 @@ export class RemoveDirectoryCommand extends SkillCommand {
             entityName: 'Path',
             prompt: `Enter the path for the directory to remove:`
         });
-        this.addProcessingStep(
-            async (step) => await this.beginCommand(step, `call rd ${step.options['path']}`),
-            async (step) => await step.endDialog()
-        );
+        this.addProcessingStep(async (step) => {
+            await this.call(`rd ${step.options['path']}`);
+            return await step.endDialog();
+        });
     }
 }
 

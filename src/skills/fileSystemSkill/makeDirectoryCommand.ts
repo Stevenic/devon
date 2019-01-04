@@ -17,10 +17,10 @@ export class MakeDirectoryCommand extends SkillCommand {
             entityName: 'Path',
             prompt: `Enter the path for the new directory:`
         });
-        this.addProcessingStep(
-            async (step) => await this.beginCommand(step, `call md ${step.options['path']}`),
-            async (step) => await step.endDialog()
-        );
+        this.addProcessingStep(async (step) => {
+            await this.call(`md ${step.options['path']}`);
+            return await step.endDialog();
+        });
     }
 }
 

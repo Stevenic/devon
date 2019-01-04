@@ -3,6 +3,7 @@ import { ComponentDialog, DialogContext, DialogTurnResult } from 'botbuilder-dia
 import parseArgsStringToArgv = require('string-argv');
 import { Recognizer, NONE_INTENT } from './recognizer';
 import { SkillSet } from './skillSet';
+import { spawnCmd } from '../spawnCmd';
 
 export interface RecognizedCommand {
     score: number;
@@ -32,6 +33,10 @@ export abstract class CustomSkillCommand extends ComponentDialog {
 
     public beginCommand(dc: DialogContext, command: string, silent = true): Promise<DialogTurnResult> {
         return this.parent.beginCommand(dc, command, silent); 
+    }
+
+    public call<T>(line: string): Promise<T> {
+        return spawnCmd(line);
     }
 
     public async recognizeCommand(context: TurnContext, utterance?: string): Promise<RecognizedCommand|undefined> {
