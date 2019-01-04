@@ -8,4 +8,5 @@ export * from './recognizer';
 export * from './regExpRecognizer';
 export * from './skill';
 export * from './skillCommand';
+export * from './botSkill';
 export * from './skillSet';
