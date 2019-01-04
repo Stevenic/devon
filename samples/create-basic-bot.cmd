@@ -21,4 +21,6 @@ rem download basic bot luis model
 curl https://raw.githubusercontent.com/Microsoft/BotBuilder-Samples/master/samples/javascript_nodejs/13.basic-bot/deploymentScripts/msbotClone/34.luis --output .\lib\devondemo\deploymentScripts\msbotClone\34.luis
 curl https://raw.githubusercontent.com/Microsoft/BotBuilder-Samples/master/samples/javascript_nodejs/13.basic-bot/deploymentScripts/msbotClone/bot.recipe --output .\lib\devondemo\deploymentScripts\msbotClone\bot.recipe
 rem create luis app for the bot
-msbot clone services --name devondemo2 --luisAuthoringKey "bd3bf441221c4e3f89a426abf99847ec"  --code-dir .\lib\devondemo --location westus --sdkLanguage Node --sdkVersion v4 --folder .\lib\devondemo\deploymentScripts/msbotClone --appId "88488293-7162-4679-afac-75b9a753e22a" --appSecret "acfoSGNOC2=ctlDT0858{%$" --verbose
+pushd .\lib\devondemo
+msbot clone services --name devondemo3 --luisAuthoringKey "bd3bf441221c4e3f89a426abf99847ec"  --location westus --sdkLanguage Node --sdkVersion v4 --folder ./deploymentScripts/msbotClone --appId "88488293-7162-4679-afac-75b9a753e22a" --appSecret "acfoSGNOC2=ctlDT0858{%$" --verbose
+popd
