@@ -1,8 +1,9 @@
-import { AutoSaveStateMiddleware, ConversationState, MemoryStorage } from 'botbuilder';
-import { DialogTurnStatus } from 'botbuilder-dialogs';
+import { ActivityTypes, ConversationState, MemoryStorage, AutoSaveStateMiddleware } from 'botbuilder';
 import { ConsoleAdapter } from './consoleAdapter';
-import { FileSystemSkill, SampleSkill, ShellSkill, SkillSet } from './skills';
+import { BotSkill, FileSystemSkill, SampleSkill, ShellSkill, SkillSet } from './skills';
 import { AZCliSkill } from './skills/azCliSkills';
+import chalk from 'chalk';
+import { DialogTurnStatus } from 'botbuilder-dialogs';
 
 const adapter = new ConsoleAdapter();
 
@@ -14,17 +15,18 @@ skills.addSkill(
     new ShellSkill('shell'),
     new FileSystemSkill('files'),
     new SampleSkill('sample'),
-    new AZCliSkill('azCli')
-);
+    new BotSkill('msbot'),
+    new AZCliSkill('azCli'));
 
 const initialMessage = process.argv.length > 2 ? process.argv.slice(2).join(' ') : undefined;
 adapter.listen(async (context) => {
     if (context.activity.text === 'quit') {
         process.exit();
-    } else if (context.activity.text) {
+    } else {
         const result = await skills.run(context);
+        /*
         if (result.status !== DialogTurnStatus.waiting) {
             process.exit();
-        }
+        }*/
     }
 }, initialMessage);
