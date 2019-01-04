@@ -1,14 +1,22 @@
 {
-  "compilerOptions": {
-    "target": "ES2015",
-    "module": "commonjs",
-    "declaration": true,
-    "sourceMap": true,
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "types" : ["node"]
-  },
-  "include": [
-    "src/**/*"
-  ]
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonjs",
+        "declaration": true,
+        "sourceMap": true,
+        "outDir": "./lib",
+        "rootDir": "./src",
+        "types": [
+            "node"
+        ],
+        "typeRoots": [
+            "./node_modules/@types"
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+    ]
 }
