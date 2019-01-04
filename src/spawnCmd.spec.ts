@@ -16,4 +16,8 @@ describe('executeCmd', () => {
         }
         expect(error).not.toBeNull();
     });
+    it('preserve quoted args', async () => {
+        const result = await spawnCmd<any>('az account set -s "Bot Service Testing (Production)"');
+        expect(result).toBeNull();
+    })
 });

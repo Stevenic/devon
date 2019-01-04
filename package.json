@@ -21,7 +21,7 @@
             "^.+\\.(ts|tsx)$": "ts-jest/preprocessor.js"
         },
         "testMatch": [
-            "**/*.spec.(ts|tsx|js)"
+            "**/*.spec.(ts|tsx)"
         ],
         "collectCoverage": true,
         "coverageDirectory": "./coverage"

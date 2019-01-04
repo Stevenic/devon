@@ -29,16 +29,30 @@ export class BotSkill extends Skill {
         });
         createBot.addProcessingStep(async (step) => {
             const subs = step.result;
-            // TODO: how to ask the user to choose one of subs
-            await spawnCmd(`az account set -s "${subs[0]}"`);
+            return await step.prompt('choices', { prompt: 'Choose subscription:', choices: subs })
+        });
+        createBot.addProcessingStep(async (step) => {
+            const sub = step.result.value;
+            await spawnCmd(`az account set -s "${sub}"`);
             const groups = await spawnCmd<string[]>('az group list --query [*].name');
             return await step.next(groups);
         });
         createBot.addProcessingStep(async (step) => {
             const groups = step.result;
-            await spawnCmd(`az configure --defaults group=${groups[0]}`);
-            return await step.endDialog();
-        })
+            return await step.prompt('choices', { prompt: 'Choose resource group:', choices: groups });
+        });
+        createBot.addProcessingStep(async (step) => {
+            const group = step.result.value;
+            await spawnCmd(`az configure --defaults group=${group}`);
+            const accessToken = await spawnCmd<string>('az account get-access-token --query accessToken');
+            return await step.next(accessToken);
+        });
+        createBot.addProcessingStep(async (step) => {
+            const accessToken = step.result;
+            const luisAuthKey = await spawnCmd<string>(`curl https://api.luis.ai/api/v2.0/bots/programmatickey  -H "Authorization:Bearer ${accessToken}"`);
+            return await step.next(luisAuthKey);
+        });
+        createBot.addDialog(new ChoicePrompt('choices'));
         this.addCommand(createBot);
     }
 }
