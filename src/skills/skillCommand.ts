@@ -88,7 +88,7 @@ export interface SkillCommandOption {
     entityName?: string;
 }
 
-export class SkillCommand extends CustomSkillCommand {
+export class SkillCommand<W extends object = {}> extends CustomSkillCommand {
     private readonly sequence = new WaterfallDialog('sequence');
     private readonly options: commandLineArgs.OptionDefinition[] = [];
     private readonly entityMappers: { [name: string]: (entity: any, options: object) => any; } = {};
@@ -147,7 +147,7 @@ export class SkillCommand extends CustomSkillCommand {
         return this;
     }
 
-    public addProcessingStep(...steps: WaterfallStep[]): this {
+    public addProcessingStep(...steps: WaterfallStep<W>[]): this {
         steps.forEach((step) => this.sequence.addStep(step));
         return this;
     }

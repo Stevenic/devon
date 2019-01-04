@@ -4,7 +4,8 @@
     "description": "Console bot to assist with common development tasks.",
     "main": "index.js",
     "scripts": {
-        "start": "tsc && node ./lib/index.js",
+        "build": "tsc",
+        "start": "npm run build && node --inspect=7777 ./lib/index.js",
         "test": "jest"
     },
     "jest": {
