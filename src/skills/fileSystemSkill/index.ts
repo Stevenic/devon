@@ -18,7 +18,7 @@ export class FileSystemSkill extends Skill {
             entityName: 'Path'
         });
         makeDirectory.addProcessingStep(async (step) => {
-            await step.context.sendActivity(`creating: ${step.options['path']}`);
+            await step.context.sendActivity(`md ${step.options['path']}`);
             return await step.endDialog();
         });
         this.addCommand(makeDirectory);

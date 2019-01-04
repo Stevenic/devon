@@ -1,5 +1,6 @@
 export * from './fileSystemSkill';
 export * from './sampleSkill';
+export * from './shellSkill';
 export * from './customSkillCommand';
 export * from './existingPathPrompt';
 export * from './pathPrompt';

@@ -42,7 +42,31 @@ export class SkillSet extends ComponentDialog {
     }
 
     public async beginCommand(dc: DialogContext, command: string, silent = true): Promise<DialogTurnResult> {
-        return await dc.beginDialog(this.id, { command: command, silent: silent });
+        // Expand environment vars
+        let utterance = '';
+        let variable = '';
+        let inVariable = false;
+        for (let i = 0; i < command.length; i++) {
+            const char = command[i];
+            if (!inVariable) {
+                if (char === '%') {
+                    inVariable = true;
+                } else {
+                    utterance += char;
+                }
+            } else if (char === '%') {
+                if (process.env.hasOwnProperty(variable)) {
+                    utterance += process.env[variable];
+                }
+                variable = '';
+                inVariable = false;
+            } else {
+                variable += char;
+            }
+        }
+
+        // Process utterance
+        return await dc.beginDialog(this.id, { command: utterance, silent: silent });
     }
 
     public async run(context: TurnContext, options?: SkillSetOptions): Promise<DialogTurnResult> {
