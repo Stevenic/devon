@@ -31,7 +31,7 @@ export abstract class CustomSkillCommand extends ComponentDialog {
             argv = context.turnState.get(CACHED_ARGV);
         } else {
             const utterance = context.activity.text || '';
-            argv = parseArgsStringToArgv(utterance, 'node', 'devon');
+            argv = parseArgsStringToArgv(utterance);
             context.turnState.set(CACHED_ARGV, argv);
         }
         return argv.slice(0);

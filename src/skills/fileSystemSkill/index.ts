@@ -14,7 +14,8 @@ export class FileSystemSkill extends Skill {
             name: 'path', 
             type: SkillCommandOptionType.path,
             defaultOption: true,
-            required: true
+            required: true,
+            entityName: 'Path'
         });
         makeDirectory.addProcessingStep(async (step) => {
             await step.context.sendActivity(`creating: ${step.options['path']}`);
@@ -25,5 +26,6 @@ export class FileSystemSkill extends Skill {
 }
 
 const defaultRecognizer = new RegExpRecognizer()
-    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path)/i)
-    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path) .*(?:named|called) (.*)/i, ['path']);
+    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path) .*(?:named|called) (.*)/i, ['Path'])
+    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path) (.*)/i, ['Path'])
+    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path)/i);
