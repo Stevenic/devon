@@ -7,6 +7,9 @@ import { RegExpRecognizer } from '../regExpRecognizer';
 import { Skill } from '../skill';
 import { SkillCommand, SkillCommandOptionType } from '../skillCommand';
 
+const defaultAppId = '3c1a50a7-1e3c-4391-83c7-a0aa302d683f';
+const defaultAppSecret = ')@@z9!1)Y*{;-?!]-6Hcsa[whV%#Q*;T((R}>%/>=.:w*.:*'
+
 export class BotSkill extends Skill {
     constructor(dialogId: string, recognizer?: Recognizer) {
         super(dialogId, recognizer || defaultRecognizer);
@@ -91,7 +94,7 @@ export class BotSkill extends Skill {
             if (existsSync(botFilePath)) {
                 unlinkSync(botFilePath);
             }
-            const bot = await spawnCmd<{}>(`msbot clone services -n ${options['botName']} --luisAuthoringKey "${options['luisAuthKey']}" --location westus --folder ./deploymentScripts/msbotClone --subscriptionId "${options['subscriptionId']}" --force --groupName "${options['resourceGroup']}" --sdkLanguage Node --appId "88488293-7162-4679-afac-75b9a753e22a" --appSecret "acfoSGNOC2=ctlDT0858{%$"`, { cwd });
+            const bot = await spawnCmd<{}>(`msbot clone services -n ${options['botName']} --luisAuthoringKey "${options['luisAuthKey']}" --location westus --folder ./deploymentScripts/msbotClone --subscriptionId "${options['subscriptionId']}" --force --groupName "${options['resourceGroup']}" --sdkLanguage Node --appId "${defaultAppId}" --appSecret "${defaultAppSecret}"`, { cwd });
             return await step.next(bot);
         });
         createBot.addProcessingStep(async step => await step.endDialog());
