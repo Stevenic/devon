@@ -15,7 +15,8 @@ export class CreateCommand extends SkillCommand {
             type: SkillCommandOptionType.string,
             defaultOption: true,
             required: true,
-            entityName: 'SampleName'
+            entityName: 'SampleName',
+            prompt: `What would you like to call your sample?`
         });
         this.addProcessingStep(async (step) => {
             return await step.beginDialog('create', { name: step.options['name'] });
@@ -23,22 +24,10 @@ export class CreateCommand extends SkillCommand {
 
         // Add create waterfall
         this.addDialog(new WaterfallDialog('create', [
-            async (step) => {
-                return await step.prompt('choices', {
-                    prompt: `Pick a subscription`,
-                    choices: ['sub1', 'sub2']
-                });
-            },
-            async (step) => {
-                await step.context.sendActivity(`You chose: ${step.result.value}`);
-                return await this.beginCommand(step, 'md foo');
-            },
-            async (step) => {
-                return await this.beginCommand(step, 'md bar');
-            },
-            async (step) => {
-                return await step.endDialog();
-            }
+            async (step) => await this.beginCommand(step, `set name=${step.options['name']}`),
+            async (step) => await this.beginCommand(step, `echo Creating "%name%"`),
+            async (step) => await this.beginCommand(step, 'md "%name%"'),
+            async (step) => await step.endDialog()
         ]));
 
         // Add support dialogs

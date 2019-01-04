@@ -1,6 +1,6 @@
 import { ActivityTypes, ConversationState, MemoryStorage, AutoSaveStateMiddleware } from 'botbuilder';
 import { ConsoleAdapter } from './consoleAdapter';
-import { SkillSet, FileSystemSkill, SampleSkill } from './skills';
+import { SkillSet, ShellSkill, FileSystemSkill, SampleSkill } from './skills';
 import chalk from 'chalk';
 import { DialogTurnStatus } from 'botbuilder-dialogs';
 
@@ -10,7 +10,7 @@ const convoState = new ConversationState(new MemoryStorage());
 adapter.use(new AutoSaveStateMiddleware(convoState));
 
 const skills = new SkillSet(convoState.createProperty('skillState'));
-skills.addSkill(new FileSystemSkill('files'), new SampleSkill('sample'));
+skills.addSkill(new ShellSkill('shell'), new FileSystemSkill('files'), new SampleSkill('sample'));
 
 const initialMessage = process.argv.length > 2 ? process.argv.slice(2).join(' ') : undefined;
 adapter.listen(async (context) => {
