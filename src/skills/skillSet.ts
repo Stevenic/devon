@@ -6,14 +6,19 @@ import { RecognizedCommand } from './customSkillCommand';
 import { Recognizer } from './recognizer';
 import { TurnContext } from 'botbuilder';
 
-const DEFAULT_MAIN_DIALOG = 'main';
+const DEFAULT_DIALOG_ID = 'all_skills';
 
-export class RootSkillSet extends ComponentDialog {
+export interface SkillSetOptions {
+    command?: string;
+    silent?: boolean;
+}
+
+export class SkillSet extends ComponentDialog {
     private readonly mainDialogSet: DialogSet;
     protected readonly skills: Skill[] = [];
     public recognizer: Recognizer;
 
-    constructor(conversationState: StatePropertyAccessor<DialogState>, dialogId = DEFAULT_MAIN_DIALOG) {
+    constructor(conversationState: StatePropertyAccessor<DialogState>, dialogId = DEFAULT_DIALOG_ID) {
         super(dialogId);
         this.mainDialogSet = new DialogSet(conversationState);
         this.mainDialogSet.add(this);
@@ -21,6 +26,9 @@ export class RootSkillSet extends ComponentDialog {
 
     public addSkill(...skills: Skill[]): this {
         skills.forEach((skill) => {
+            // Assign parent
+            skill.parent = this;
+            
             // Assign the root recognizer to the skill if not already set
             if (!skill.recognizer) {
                 skill.recognizer = this.recognizer;
@@ -33,7 +41,11 @@ export class RootSkillSet extends ComponentDialog {
         return this;
     }
 
-    public async run(context: TurnContext, options?: any): Promise<DialogTurnResult> {
+    public async beginCommand(dc: DialogContext, command: string, silent = true): Promise<DialogTurnResult> {
+        return await dc.beginDialog(this.id, { command: command, silent: silent });
+    }
+
+    public async run(context: TurnContext, options?: SkillSetOptions): Promise<DialogTurnResult> {
         // Create a dialog context and try to continue running the current dialog
         const dc = await this.mainDialogSet.createContext(context);
         let result = await dc.continueDialog();
@@ -45,46 +57,28 @@ export class RootSkillSet extends ComponentDialog {
         return result;
     }
 
-    protected onBeginDialog(dc: DialogContext, options?: any): Promise<DialogTurnResult> {
-        return this.onRunTurn(dc, options);
-    }
-
-    protected onContinueDialog(dc: DialogContext): Promise<DialogTurnResult> {
-        return this.onRunTurn(dc);
-    }
-
-    protected async onRunTurn(dc: DialogContext, options?: any): Promise<DialogTurnResult> {
-        // Check for creation of a new tangent
-        const isActive = dc.stack.length > 0;
-        const newTangent = dc.context.activity.text.startsWith('?');
-        if (!isActive || newTangent) {
-            // Find skill to run
-            const recognized = await this.onRecognize(dc.context);
-            if (recognized) {
-                return await dc.beginDialog(recognized.dialogId, recognized.dialogOptions);
-            } else {
-                await dc.context.sendActivity(`I'm sorry I didn't understand.`);
-                if (isActive) {
-                    await dc.repromptDialog();
-                    return { status: DialogTurnStatus.waiting };
-                } else {
-                    return { status: DialogTurnStatus.complete };
-                }
-            }
+    protected async onBeginDialog(dc: DialogContext, options?: SkillSetOptions): Promise<DialogTurnResult> {
+        // Find skill to run
+        const utterance =  options && options.command ? options.command : dc.context.activity.text;
+        const recognized = await this.onRecognizeCommand(dc.context, utterance);
+        if (recognized) {
+            return await dc.beginDialog(recognized.dialogId, recognized.dialogOptions);
         } else {
-            return await dc.continueDialog();
+            if (!options.silent) {
+                await dc.context.sendActivity(`I couldn't find a command to run.`);
+            }
+            return { status: DialogTurnStatus.complete, result: 'not found' };
         }
     }
 
-    protected async onRecognize(context: TurnContext): Promise<RecognizedCommand|undefined> {
+    protected async onRecognizeCommand(context: TurnContext, utterance: string): Promise<RecognizedCommand|undefined> {
         let top: RecognizedCommand = undefined;
         for (let i = 0; i < this.skills.length; i++) {
-            const recognized = await this.skills[i].recognizeCommand(context);
+            const recognized = await this.skills[i].recognizeCommand(context, utterance);
             if (recognized && (!top || recognized.score > top.score)) {
                 top = recognized;
             }
         }
         return top;
     }
-
 }

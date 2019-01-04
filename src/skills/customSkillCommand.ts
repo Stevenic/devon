@@ -2,6 +2,7 @@ import { TurnContext, RecognizerResult } from 'botbuilder';
 import { ComponentDialog } from 'botbuilder-dialogs';
 import parseArgsStringToArgv = require('string-argv');
 import { Recognizer, NONE_INTENT } from './recognizer';
+import { SkillSet } from './skillSet';
 
 export interface RecognizedCommand {
     score: number;
@@ -10,6 +11,7 @@ export interface RecognizedCommand {
 } 
 
 export abstract class CustomSkillCommand extends ComponentDialog {
+    private _parent: SkillSet;
     public recognizer: Recognizer|undefined;
     public intentName: string|undefined;
 
@@ -17,25 +19,23 @@ export abstract class CustomSkillCommand extends ComponentDialog {
         super(dialogId);
     }
 
-    public async recognizeCommand(context: TurnContext): Promise<RecognizedCommand|undefined> {
-        const noneIntent = { text: context.activity.text, intents: { [NONE_INTENT]: { score: 0.0 }}};
-        const recognized = this.recognizer ? await this.recognizer.recognize(context) : noneIntent;
-        return await this.onRecognizeCommand(context, recognized);
+    public get parent(): SkillSet {
+        return this._parent;
     }
 
-    protected abstract onRecognizeCommand(context: TurnContext, recognized: RecognizerResult): Promise<RecognizedCommand|undefined>;
-
-    static utteranceToArgv(context: TurnContext): string[] {
-        let argv: string[];
-        if (context.turnState.has(CACHED_ARGV)) {
-            argv = context.turnState.get(CACHED_ARGV);
-        } else {
-            const utterance = context.activity.text || '';
-            argv = parseArgsStringToArgv(utterance);
-            context.turnState.set(CACHED_ARGV, argv);
+    public set parent(value: SkillSet) {
+        this._parent = value;
+        if (this._parent) {
+            this.addDialog(this._parent);
         }
-        return argv.slice(0);
     }
-}
 
-const CACHED_ARGV = Symbol('argv');
+    public async recognizeCommand(context: TurnContext, utterance?: string): Promise<RecognizedCommand|undefined> {
+        utterance = utterance || context.activity.text || '';
+        const noneIntent = { text: utterance, intents: { [NONE_INTENT]: { score: 0.0 }}};
+        const recognized = this.recognizer ? await this.recognizer.recognize(context, utterance) : noneIntent;
+        return await this.onRecognizeCommand(context, utterance, recognized);
+    }
+
+    protected abstract onRecognizeCommand(context: TurnContext, utterance: string, recognized: RecognizerResult): Promise<RecognizedCommand|undefined>;
+}
