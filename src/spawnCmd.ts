@@ -1,16 +1,16 @@
-import { spawn } from 'child_process';
+import { spawn, SpawnOptions } from 'child_process';
 import { Stream } from 'stream';
 import { WriteStream } from 'fs';
 const string_argv = require('string-argv');
 
-export async function spawnCmd<T>(line: string): Promise<T> {
+export async function spawnCmd<T>(line: string, options?: SpawnOptions): Promise<T> {
     console.log(line);
     const [cmd, ...args] = string_argv(line);
 
     const quotedArgs = args.map(x => x.indexOf(' ') >= 0 ? `"${x}"` : x);
 
     const promise = new Promise<T>((res, rej) => {
-        const cp = spawn(cmd, quotedArgs, { shell: true, stdio: ['inherit', 'pipe', 'inherit'] });
+        const cp = spawn(cmd, quotedArgs, { ...options, shell: true, stdio: ['inherit', 'pipe', 'inherit'] });
         const lines: string[] = [];
         cp.stdout.on('data', d => {
             process.stdout.write(d);
@@ -31,7 +31,7 @@ export async function spawnCmd<T>(line: string): Promise<T> {
                     const obj = text ? JSON.parse(text) : null;
                     res(obj);
                 } catch (ex) {
-                    rej(ex);
+                    res(null);
                 }
             }
         })

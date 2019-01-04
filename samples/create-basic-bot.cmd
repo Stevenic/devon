@@ -9,6 +9,8 @@ rem set the default resource group
 az configure --defaults group=hailiuprodbots
 rem list all bots in the defauult resource group
 az resource list --query [?type=='Microsoft.BotService/botServices'].name
+rem create basic bot code locally
+yo botbuilder
 rem create a new nodejs bot
 az bot create --name devondemo --kind webapp --lang Node --version v4 --appid "88488293-7162-4679-afac-75b9a753e22a" --password "acfoSGNOC2=ctlDT0858{%$" --verbose
 rem download bot code to local drive
@@ -23,4 +25,5 @@ curl https://raw.githubusercontent.com/Microsoft/BotBuilder-Samples/master/sampl
 rem create luis app for the bot
 pushd .\lib\devondemo
 msbot clone services --name devondemo3 --luisAuthoringKey "bd3bf441221c4e3f89a426abf99847ec"  --location westus --sdkLanguage Node --sdkVersion v4 --folder ./deploymentScripts/msbotClone --appId "88488293-7162-4679-afac-75b9a753e22a" --appSecret "acfoSGNOC2=ctlDT0858{%$" --verbose
+msbot create -n ${options['bottName']} -subscriptionId "${options['subscriptionId']}" --groupName "${options['resourceGroup]}" --sdkLanguage Node --appId --appSecret
 popd

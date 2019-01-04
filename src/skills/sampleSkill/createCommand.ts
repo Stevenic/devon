@@ -1,4 +1,4 @@
-import { WaterfallDialog, ChoicePrompt } from 'botbuilder-dialogs';
+import { WaterfallDialog, ChoicePrompt, DialogSet, DialogTurnStatus } from 'botbuilder-dialogs';
 import { Recognizer } from '../recognizer';
 import { RegExpRecognizer } from '../regExpRecognizer';
 import { SkillCommand, SkillCommandOptionType } from '../skillCommand';
@@ -10,8 +10,8 @@ export class CreateCommand extends SkillCommand {
         this.intentName = 'CreateBot';
 
         // Add options and processing step
-        this.addOption({ 
-            name: 'name', 
+        this.addOption({
+            name: 'name',
             type: SkillCommandOptionType.string,
             defaultOption: true,
             required: true,

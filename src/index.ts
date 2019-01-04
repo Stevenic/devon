@@ -18,8 +18,9 @@ adapter.listen(async (context) => {
         process.exit();
     } else {
         const result = await skills.run(context);
+        /*
         if (result.status !== DialogTurnStatus.waiting) {
             process.exit();
-        }
+        }*/
     }
 }, initialMessage);
