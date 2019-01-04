@@ -31,6 +31,12 @@ export class CreateCommand extends SkillCommand {
             },
             async (step) => {
                 await step.context.sendActivity(`You chose: ${step.result.value}`);
+                return await this.beginCommand(step, 'md foo');
+            },
+            async (step) => {
+                return await this.beginCommand(step, 'md bar');
+            },
+            async (step) => {
                 return await step.endDialog();
             }
         ]));

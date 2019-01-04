@@ -1,5 +1,5 @@
 import { TurnContext, RecognizerResult } from 'botbuilder';
-import { ComponentDialog } from 'botbuilder-dialogs';
+import { ComponentDialog, DialogContext, DialogTurnResult } from 'botbuilder-dialogs';
 import parseArgsStringToArgv = require('string-argv');
 import { Recognizer, NONE_INTENT } from './recognizer';
 import { SkillSet } from './skillSet';
@@ -28,6 +28,10 @@ export abstract class CustomSkillCommand extends ComponentDialog {
         if (this._parent) {
             this.addDialog(this._parent);
         }
+    }
+
+    public beginCommand(dc: DialogContext, command: string, silent = true): Promise<DialogTurnResult> {
+        return this.parent.beginCommand(dc, command, silent); 
     }
 
     public async recognizeCommand(context: TurnContext, utterance?: string): Promise<RecognizedCommand|undefined> {
