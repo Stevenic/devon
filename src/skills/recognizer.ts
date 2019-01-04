@@ -1,7 +1,7 @@
 import { TurnContext, RecognizerResult } from 'botbuilder';
 
 export interface Recognizer {
-    recognize(context: TurnContext): Promise<RecognizerResult>;
+    recognize(context: TurnContext, utterance?: string): Promise<RecognizerResult>;
 }
 
 export const NONE_INTENT = 'None';

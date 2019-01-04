@@ -2,6 +2,7 @@ import { TurnContext, RecognizerResult } from 'botbuilder';
 import { DialogContext, DialogTurnResult } from 'botbuilder-dialogs';
 import { CustomSkillCommand, RecognizedCommand } from './customSkillCommand';
 import { Recognizer } from './recognizer';
+import { SkillSet } from './skillSet';
 
 export class Skill extends CustomSkillCommand {
     protected readonly commands: CustomSkillCommand[] = [];
@@ -11,8 +12,16 @@ export class Skill extends CustomSkillCommand {
         this.recognizer = recognizer;
     }
 
+    public set parent(value: SkillSet) {
+        super.parent = value;
+        this.commands.forEach((cmd) => cmd.parent = value);
+    }
+
     public addCommand(...commands: CustomSkillCommand[]): this {
         commands.forEach((cmd) => {
+            // Assign parent
+            cmd.parent = this.parent;
+
             // Assign the skills recognizer to the command if not already set
             if (!cmd.recognizer) {
                 cmd.recognizer = this.recognizer;
@@ -25,10 +34,10 @@ export class Skill extends CustomSkillCommand {
         return this;
     }
 
-    protected async onRecognizeCommand(context: TurnContext, recognized: RecognizerResult): Promise<RecognizedCommand|undefined> {
+    protected async onRecognizeCommand(context: TurnContext, utterance: string, recognized: RecognizerResult): Promise<RecognizedCommand|undefined> {
         let top: RecognizedCommand = undefined;
         for (let i = 0; i < this.commands.length; i++) {
-            const recognized = await this.commands[i].recognizeCommand(context);
+            const recognized = await this.commands[i].recognizeCommand(context, utterance);
             if (recognized && (!top || recognized.score > top.score)) {
                 // Return the skill as the command that was recognized (it will start the command when its started.)
                 top = {

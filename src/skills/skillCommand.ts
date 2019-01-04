@@ -152,7 +152,7 @@ export class SkillCommand extends CustomSkillCommand {
         return this;
     }
 
-    protected async onRecognizeCommand(context: TurnContext, recognized: RecognizerResult): Promise<RecognizedCommand|undefined> {
+    protected async onRecognizeCommand(context: TurnContext, utterance: string, recognized: RecognizerResult): Promise<RecognizedCommand|undefined> {
         const top = topIntent(recognized);
         if (this.intentName && top.name === this.intentName) {
             // Map entities to options and return recognized command
@@ -166,7 +166,7 @@ export class SkillCommand extends CustomSkillCommand {
             for (let i = 0; i < this.commandNames.length; i++) {
                 // Attempt to recognize the command in utterance
                 let recognized = true;
-                let argv = parseArgsStringToArgv(context.activity.text || '');
+                let argv = parseArgsStringToArgv(utterance);
                 const cmd = this.commandNames[i].split(' ');
                 for (let j = 0; j < cmd.length; j++) {
                     const o = commandLineArgs([{ name: 'command', defaultOption: true }], { argv: argv, stopAtFirstUnknown: true });

@@ -1,6 +1,6 @@
 import { ActivityTypes, ConversationState, MemoryStorage, AutoSaveStateMiddleware } from 'botbuilder';
 import { ConsoleAdapter } from './consoleAdapter';
-import { BotSkill, FileSystemSkill, RootSkillSet } from './skills';
+import { BotSkill, FileSystemSkill, SkillSet } from './skills';
 import chalk from 'chalk';
 import { DialogTurnStatus } from 'botbuilder-dialogs';
 
@@ -9,7 +9,7 @@ const adapter = new ConsoleAdapter();
 const convoState = new ConversationState(new MemoryStorage());
 adapter.use(new AutoSaveStateMiddleware(convoState));
 
-const skills = new RootSkillSet(convoState.createProperty('skillState'));
+const skills = new SkillSet(convoState.createProperty('skillState'));
 skills.addSkill(new FileSystemSkill('files'));
 skills.addSkill(new BotSkill('msbot'));
 
