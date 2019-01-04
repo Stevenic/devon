@@ -10,7 +10,7 @@ export class EchoCommand extends CustomSkillCommand {
 
     protected async onRecognizeCommand(context: TurnContext, utterance: string, recognized: RecognizerResult): Promise<RecognizedCommand|undefined> {
         if (utterance.toLowerCase().startsWith('echo ') && utterance.length) {
-            const message = utterance.substr(4);
+            const message = utterance.substr(5);
             return {
                 score: 1.0,
                 dialogId: this.id,

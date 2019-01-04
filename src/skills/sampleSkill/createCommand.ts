@@ -25,7 +25,7 @@ export class CreateCommand extends SkillCommand {
         // Add create waterfall
         this.addDialog(new WaterfallDialog('create', [
             async (step) => await this.beginCommand(step, `set name=${step.options['name']}`),
-            async (step) => await this.beginCommand(step, `echo Creating "%name%"`),
+            async (step) => await this.beginCommand(step, `echo Creating "%name%" Sample`),
             async (step) => await this.beginCommand(step, 'md "%name%"'),
             async (step) => await step.endDialog()
         ]));
