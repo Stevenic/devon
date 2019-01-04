@@ -1,5 +1,5 @@
 import { ChoicePrompt, DialogTurnStatus } from 'botbuilder-dialogs';
-import { existsSync } from 'fs';
+import { existsSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { spawnCmd } from '../../spawnCmd';
 import { Recognizer } from '../recognizer';
@@ -61,6 +61,7 @@ export class BotSkill extends Skill {
         createBot.addProcessingStep(async (step) => {
             const sub = step.result.value;
             await spawnCmd(`az account set -s "${sub}"`);
+            //return await this.beginCommand(step, `call az account set -s "${sub}"`, {})
             const groups = await spawnCmd<string[]>('az group list --query [*].name');
             step.options['subscriptionId'] = await spawnCmd<string>('az account show --query id');
             return await step.next(groups);
@@ -86,7 +87,11 @@ export class BotSkill extends Skill {
         createBot.addProcessingStep(async step => {
             const options = step.options
             const cwd = resolve(options['path'], options['botName']);
-            const bot = await spawnCmd<{}>(`msbot clone services -n ${options['botName']} --luisAuthoringKey "${options['luisAuthKey']}" --location westus --folder ./deploymentScripts/msbotClone --subscriptionId "${options['subscriptionId']}" --groupName "${options['resourceGroup']}" --sdkLanguage Node --appId "88488293-7162-4679-afac-75b9a753e22a" --appSecret "acfoSGNOC2=ctlDT0858{%$"`, { cwd });
+            const botFilePath = resolve(cwd, `${options['botName']}.bot`);
+            if (existsSync(botFilePath)) {
+                unlinkSync(botFilePath);
+            }
+            const bot = await spawnCmd<{}>(`msbot clone services -n ${options['botName']} --luisAuthoringKey "${options['luisAuthKey']}" --location westus --folder ./deploymentScripts/msbotClone --subscriptionId "${options['subscriptionId']}" --force --groupName "${options['resourceGroup']}" --sdkLanguage Node --appId "88488293-7162-4679-afac-75b9a753e22a" --appSecret "acfoSGNOC2=ctlDT0858{%$"`, { cwd });
             return await step.next(bot);
         });
         createBot.addProcessingStep(async step => await step.endDialog());
