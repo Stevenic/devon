@@ -1,31 +1,16 @@
-import { Skill } from '../skill';
 import { Recognizer } from '../recognizer';
-import { RegExpRecognizer } from '../regExpRecognizer';
-import { SkillCommand, SkillCommandOptionType } from '../skillCommand';
+import { Skill } from '../skill';
+import { ListDirectoryCommand } from './listDirectoryCommand';
+import { MakeDirectoryCommand } from './makeDirectoryCommand';
+import { RemoveDirectoryCommand } from './removeDirectoryCommand';
 
 export class FileSystemSkill extends Skill {
     constructor(dialogId: string, recognizer?: Recognizer) {
-        super(dialogId, recognizer || defaultRecognizer);
+        super(dialogId, recognizer);
     
         // Add skill commands
-        const makeDirectory = new SkillCommand('makeDirectory', 'md', 'mkdir');
-        makeDirectory.intentName = 'MakeDirectory';
-        makeDirectory.addOption({ 
-            name: 'path', 
-            type: SkillCommandOptionType.path,
-            defaultOption: true,
-            required: true,
-            entityName: 'Path'
-        });
-        makeDirectory.addProcessingStep(async (step) => {
-            await step.context.sendActivity(`md ${step.options['path']}`);
-            return await step.endDialog();
-        });
-        this.addCommand(makeDirectory);
+        this.addCommand(new ListDirectoryCommand('dir', recognizer));
+        this.addCommand(new MakeDirectoryCommand('md', recognizer));
+        this.addCommand(new RemoveDirectoryCommand('rd', recognizer));
     }
 }
-
-const defaultRecognizer = new RegExpRecognizer()
-    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path) .*(?:named|called) (.*)/i, ['Path'])
-    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path) (.*)/i, ['Path'])
-    .addIntent('MakeDirectory', /(?:create|make) .*(?:directory|folder|path)/i);
