@@ -11,7 +11,6 @@ describe('executeCmd', () => {
         let error = null;
         try {
             const names = await spawnCmd<string[]>('az account bogus --query [*].name');
-            expect('should not got here').toEqual(null);
         } catch (ex) {
             error = ex;
         }
