@@ -3,17 +3,23 @@ import { Stream } from 'stream';
 import { WriteStream } from 'fs';
 const string_argv = require('string-argv');
 
-export async function spawnCmd<T>(line: string, options?: SpawnOptions): Promise<T> {
+export interface OutputSetting {
+    // if true, the child-process stdout will be piped to the calling process output
+    interactive?: boolean;
+}
+export async function spawnCmd<T>(line: string, options?: SpawnOptions & OutputSetting): Promise<T> {
     console.log(line);
     const [cmd, ...args] = string_argv(line);
 
-    const quotedArgs = args.map(x => x.indexOf(' ') >= 0 ? `"${x}"` : x);
+    const quotedArgs = args.map(x => x.indexOf(' ') >= 0 || x.indexOf('>') >= 0 ? `"${x}"` : x);
 
     const promise = new Promise<T>((res, rej) => {
         const cp = spawn(cmd, quotedArgs, { ...options, shell: true, stdio: ['inherit', 'pipe', 'inherit'] });
         const lines: string[] = [];
         cp.stdout.on('data', d => {
-            process.stdout.write(d);
+            if (options && options.interactive) {
+                process.stdout.write(d);
+            }
             lines.push(d.toString());
         });
         cp.stdout.on('error', ex => rej(ex));

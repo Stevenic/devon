@@ -37,7 +37,7 @@ export class BotSkill extends Skill {
             const botName = step.options['botName'];
             const botIndex = resolve(botDir, botName, 'index.js');
             if (!existsSync(botIndex)) {
-                await spawnCmd<any>('yo botbuilder', { cwd: resolve(botDir) });
+                await spawnCmd<any>('yo botbuilder', { cwd: resolve(botDir), interactive: true });
             }
             return await step.next();
         });
@@ -94,7 +94,8 @@ export class BotSkill extends Skill {
             if (existsSync(botFilePath)) {
                 unlinkSync(botFilePath);
             }
-            const bot = await spawnCmd<{}>(`msbot clone services -n ${options['botName']} --luisAuthoringKey "${options['luisAuthKey']}" --location westus --folder ./deploymentScripts/msbotClone --subscriptionId "${options['subscriptionId']}" --force --groupName "${options['resourceGroup']}" --sdkLanguage Node --appId "${defaultAppId}" --appSecret "${defaultAppSecret}"`, { cwd });
+            const bot = await spawnCmd<{}>(`msbot clone services -n ${options['botName']} --luisAuthoringKey "${options['luisAuthKey']}" --location westus --folder ./deploymentScripts/msbotClone --subscriptionId "${options['subscriptionId']}" --force --groupName "${options['resourceGroup']}" --sdkLanguage Node --appId "${defaultAppId}" --appSecret "${defaultAppSecret}"`,
+                { cwd, interactive: true });
             return await step.next(bot);
         });
         createBot.addProcessingStep(async step => await step.endDialog());
