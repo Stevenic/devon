@@ -10,7 +10,7 @@ const convoState = new ConversationState(new MemoryStorage());
 adapter.use(new AutoSaveStateMiddleware(convoState));
 
 const skills = new RootSkillSet(convoState.createProperty('skillState'));
-//skills.addSkill(new FileSystemSkill('files'));
+skills.addSkill(new FileSystemSkill('files'));
 skills.addSkill(new BotSkill('msbot'));
 
 const initialMessage = process.argv.length > 2 ? process.argv.slice(2).join(' ') : undefined;

@@ -1,7 +1,8 @@
+import { ChoicePrompt } from 'botbuilder-dialogs';
 import { spawnCmd } from '../../spawnCmd';
-import { Skill } from '../skill';
 import { Recognizer } from '../recognizer';
 import { RegExpRecognizer } from '../regExpRecognizer';
+import { Skill } from '../skill';
 import { SkillCommand, SkillCommandOptionType } from '../skillCommand';
 
 export class BotSkill extends Skill {
@@ -28,6 +29,7 @@ export class BotSkill extends Skill {
         });
         createBot.addProcessingStep(async (step) => {
             const subs = step.result;
+            // TODO: how to ask the user to choose one of subs
             await spawnCmd(`az account set -s "${subs[0]}"`);
             const groups = await spawnCmd<string[]>('az group list --query [*].name');
             return await step.next(groups);
