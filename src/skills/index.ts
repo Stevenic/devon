@@ -7,3 +7,4 @@ export * from './regExpRecognizer';
 export * from './rootSkillSet';
 export * from './skill';
 export * from './skillCommand';
+export * from './botSkill';
