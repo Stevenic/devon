@@ -31,7 +31,7 @@ export async function spawnCmd<T>(line: string): Promise<T> {
                     const obj = text ? JSON.parse(text) : null;
                     res(obj);
                 } catch (ex) {
-                    rej(ex);
+                    res(undefined);
                 }
             }
         })
