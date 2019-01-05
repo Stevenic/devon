@@ -29,6 +29,8 @@ export async function spawnCmd<T>(line: string, options?: SpawnOptions & OutputS
             }
         });
         cp.on('close', code => {
+            // reset color to normal
+            process.stdout.write('\x1b[0m');
             if (code !== 0) {
                 rej(code);
             } else {
