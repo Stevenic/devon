@@ -44,6 +44,7 @@ export class ListResourceGroupsSkillCommand extends SkillCommand<ListResourceGro
                 let result = null;
                 try {
                     result = await spawnCmd('az account list --query [*].name');
+                    process.stdout.write(JSON.stringify(result, null, 2));
                 } catch (err) {
                     debugger;
                 }
